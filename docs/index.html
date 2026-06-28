@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explicaciones 1077 - Indice</title>
+    <link rel="stylesheet" href="assets/estilos.css">
+</head>
+<body>
+
+    <header class="encabezado">
+        <div class="contenedor" style="padding-top:0; padding-bottom:0;">
+            <h1>Explicaciones 1077</h1>
+            <p class="subt">Una mano con los ejercicios que cuestan</p>
+        </div>
+    </header>
+
+    <main class="contenedor">
+
+        <div class="buscador">
+            <label for="buscar">Buscar un ejercicio:</label>
+            <input type="text" id="buscar" placeholder="Por ejemplo: suma, fracciones, 3er grado..." autocomplete="off">
+            <p class="ayuda-buscador">Escribi una o varias palabras. Podes buscar por tema, tipo o grado.</p>
+        </div>
+
+        <ul id="lista-fichas" class="lista-fichas"></ul>
+
+        <div id="sin-resultados" class="sin-resultados" style="display:none;">
+            No hay fichas que coincidan con la busqueda.
+        </div>
+
+    </main>
+
+    <footer class="pie">
+        Escuela 1077 - Buenos Aires
+    </footer>
+
+    <script src="assets/buscador.js"></script>
+
+</body>
+</html>

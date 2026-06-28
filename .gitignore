@@ -1,0 +1,21 @@
+# Carpeta de archivos locales (config con secretos, caché, logs, notas).
+# Se ignora todo el contenido salvo el README marcador.
+local/*
+!local/README.md
+
+# Carpeta de entrada (imágenes crudas de ejercicios subidos por alumnos).
+# JAMAS deben llegar al repo publico.
+entrada/
+
+# Sistema operativo
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Configuración de MCPs (puede contener tokens) — nunca commitear.
+.mcp.json

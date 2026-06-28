@@ -1,0 +1,20 @@
+[
+  {
+    "id": "suma-llevando-001",
+    "titulo": "Suma con tres cifras llevando una",
+    "tema": "Matematica",
+    "tipo": "Suma con reagrupacion",
+    "grado": 3,
+    "url": "ej/suma-llevando-001.html",
+    "fecha": "2026-06-27"
+  },
+  {
+    "id": "fracciones-equivalentes-001",
+    "titulo": "Como encontrar fracciones equivalentes",
+    "tema": "Matematica",
+    "tipo": "Fracciones equivalentes",
+    "grado": 5,
+    "url": "ej/fracciones-equivalentes-001.html",
+    "fecha": "2026-06-26"
+  }
+]

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<!--
+    PLANTILLA DE FICHA - explicaciones-1077
+
+    Esta es la plantilla base. El motor de la Fase 1 va a tomar este archivo,
+    reemplazar los placeholders {{...}} con el contenido generado, y guardar
+    el resultado en /docs/ej/<id>.html
+
+    Placeholders esperados:
+      {{TITULO}}       - titulo corto del ejercicio
+      {{TEMA}}         - ej. "Matematica"
+      {{GRADO}}        - ej. "3er grado"
+      {{CONSIGNA}}     - re-redactada en lenguaje claro (HTML simple)
+      {{EJEMPLO_HTML}} - bloque del ejemplo resuelto
+      {{PASOS_HTML}}   - bloque de los pasos del ejercicio
+      {{FECHA}}        - fecha de publicacion, formato AAAA-MM-DD
+
+    REGLAS:
+    - Sin datos del alumno (nombre, foto, etc).
+    - Compatible IE9+.
+    - Los paths de assets son relativos a /docs/ej/<id>.html (la ubicacion final).
+-->
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITULO}} - Explicaciones 1077</title>
+    <link rel="stylesheet" href="../assets/estilos.css">
+</head>
+<body>
+
+    <header class="encabezado">
+        <div class="contenedor" style="padding-top:0; padding-bottom:0;">
+            <h1>Explicaciones 1077</h1>
+            <p class="subt">Una mano con los ejercicios que cuestan</p>
+        </div>
+    </header>
+
+    <main class="contenedor">
+
+        <article class="ficha">
+
+            <h2>{{TITULO}}</h2>
+            <p class="grado-tema">{{TEMA}} &middot; {{GRADO}}</p>
+
+            <!-- BLOQUE 1: La consigna re-redactada -->
+            <section class="bloque bloque-consigna">
+                <h3>La consigna</h3>
+                {{CONSIGNA}}
+            </section>
+
+            <!-- BLOQUE 2: Mira este ejemplo (uno parecido pero mas facil) -->
+            <section class="bloque bloque-ejemplo">
+                <h3>Mira este ejemplo</h3>
+                {{EJEMPLO_HTML}}
+            </section>
+
+            <!-- BLOQUE 3: Ahora el tuyo, paso a paso -->
+            <section class="bloque bloque-pasos">
+                <h3>Ahora el tuyo, paso a paso</h3>
+                {{PASOS_HTML}}
+            </section>
+
+            <a class="volver" href="../index.html">&larr; Volver al inicio</a>
+
+        </article>
+
+    </main>
+
+    <footer class="pie">
+        Publicado el {{FECHA}} &middot;
+        <a href="../index.html">Volver al inicio</a>
+    </footer>
+
+</body>
+</html>
