@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir ejercicio - Escuela 1077</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: Verdana, Geneva, Tahoma, sans-serif;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f6f4ee;
+            color: #222;
+        }
+        h1 {
+            color: #143f73;
+            font-size: 24px;
+            margin: 0 0 14px 0;
+        }
+        .intro {
+            background: #fff;
+            padding: 14px 16px;
+            border-radius: 8px;
+            border: 2px solid #e3dcc7;
+            margin-bottom: 20px;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+        label {
+            display: block;
+            margin: 16px 0 6px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        label .opt {
+            font-weight: normal;
+            color: #666;
+            font-size: 14px;
+        }
+        input[type="file"],
+        select,
+        textarea,
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 2px solid #c4bda9;
+            border-radius: 6px;
+            background: white;
+            font-family: inherit;
+        }
+        input[type="file"]:focus,
+        select:focus,
+        textarea:focus,
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #1c5aa3;
+        }
+        textarea { resize: vertical; min-height: 70px; }
+        button {
+            background: #1c5aa3;
+            color: white;
+            padding: 16px;
+            font-size: 17px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            width: 100%;
+            margin-top: 24px;
+            cursor: pointer;
+        }
+        button:disabled {
+            background: #999;
+            cursor: not-allowed;
+        }
+        .mensaje {
+            padding: 16px;
+            margin-top: 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .mensaje.ok {
+            background: #e8f5e9;
+            color: #2e6b32;
+            border: 2px solid #4caf50;
+        }
+        .mensaje.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 2px solid #ef5350;
+        }
+        .mensaje strong { font-size: 18px; display: block; margin-bottom: 6px; }
+    </style>
+</head>
+<body>
+
+    <h1>&iquest;No entend&eacute;s un ejercicio?</h1>
+
+    <div class="intro">
+        Sacale una foto al ejercicio que no te sale y subila ac&aacute;. Tu profe lo va a explicar paso a paso en el sitio de explicaciones de la escuela.
+    </div>
+
+    <form id="form" onsubmit="enviar(event); return false;">
+
+        <label for="codigo">C&oacute;digo de la clase:</label>
+        <input type="text" id="codigo" name="codigo" required maxlength="20" placeholder="Te lo da el profe" autocomplete="off">
+
+        <label for="grado">&iquest;En qu&eacute; grado est&aacute;s?</label>
+        <select id="grado" name="grado" required>
+            <option value="">Eleg&iacute; tu grado</option>
+            <option value="1">1er grado</option>
+            <option value="2">2do grado</option>
+            <option value="3">3er grado</option>
+            <option value="4">4to grado</option>
+            <option value="5">5to grado</option>
+            <option value="6">6to grado</option>
+            <option value="7">7mo grado</option>
+        </select>
+
+        <label for="foto">Sub&iacute; la foto del ejercicio:</label>
+        <input type="file" id="foto" name="foto" accept="image/*" capture="environment" required>
+
+        <label for="consigna">&iquest;Qu&eacute; es lo que no entend&eacute;s? <span class="opt">(opcional)</span></label>
+        <textarea id="consigna" name="consigna" rows="3" maxlength="500" placeholder="Por ejemplo: no s&eacute; c&oacute;mo hacer las cuentas..."></textarea>
+
+        <button type="submit" id="submit-btn">Enviar al profe</button>
+
+    </form>
+
+    <div id="mensaje"></div>
+
+<script>
+"use strict";
+
+function enviar(e) {
+    e.preventDefault();
+    var btn = document.getElementById('submit-btn');
+    var msg = document.getElementById('mensaje');
+    var form = document.getElementById('form');
+
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+    msg.innerHTML = '';
+
+    google.script.run
+        .withSuccessHandler(function (res) {
+            if (res && res.ok) {
+                msg.innerHTML = '<div class="mensaje ok"><strong>¡Listo!</strong>' + (res.mensaje || '') + '</div>';
+                form.reset();
+                btn.textContent = 'Subir otro ejercicio';
+            } else {
+                msg.innerHTML = '<div class="mensaje error">' + ((res && res.mensaje) || 'No se pudo subir.') + '</div>';
+                btn.textContent = 'Enviar al profe';
+            }
+            btn.disabled = false;
+        })
+        .withFailureHandler(function (err) {
+            msg.innerHTML = '<div class="mensaje error">Error: ' + (err && err.message ? err.message : 'No se pudo subir. Probas otra vez en un rato.') + '</div>';
+            btn.textContent = 'Enviar al profe';
+            btn.disabled = false;
+        })
+        .uploadFile(form);
+}
+</script>
+
+</body>
+</html>
