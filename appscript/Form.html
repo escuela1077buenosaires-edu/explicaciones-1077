@@ -41,9 +41,8 @@
             font-size: 14px;
         }
         input[type="file"],
-        select,
-        textarea,
-        input[type="text"] {
+        input[type="number"],
+        select {
             width: 100%;
             padding: 12px;
             font-size: 16px;
@@ -53,13 +52,11 @@
             font-family: inherit;
         }
         input[type="file"]:focus,
-        select:focus,
-        textarea:focus,
-        input[type="text"]:focus {
+        input[type="number"]:focus,
+        select:focus {
             outline: none;
             border-color: #1c5aa3;
         }
-        textarea { resize: vertical; min-height: 70px; }
         button {
             background: #1c5aa3;
             color: white;
@@ -106,9 +103,6 @@
 
     <form id="form" onsubmit="enviar(event); return false;">
 
-        <label for="codigo">C&oacute;digo de la clase:</label>
-        <input type="text" id="codigo" name="codigo" required maxlength="20" placeholder="Te lo da el profe" autocomplete="off">
-
         <label for="grado">&iquest;En qu&eacute; grado est&aacute;s?</label>
         <select id="grado" name="grado" required>
             <option value="">Eleg&iacute; tu grado</option>
@@ -124,8 +118,8 @@
         <label for="foto">Sub&iacute; la foto del ejercicio:</label>
         <input type="file" id="foto" name="foto" accept="image/*" capture="environment" required>
 
-        <label for="consigna">&iquest;Qu&eacute; es lo que no entend&eacute;s? <span class="opt">(opcional)</span></label>
-        <textarea id="consigna" name="consigna" rows="3" maxlength="500" placeholder="Por ejemplo: no s&eacute; c&oacute;mo hacer las cuentas..."></textarea>
+        <label for="numero">N&uacute;mero del ejercicio <span class="opt">(opcional, si lo ves en la pantalla)</span></label>
+        <input type="number" id="numero" name="numero" min="1" max="9999" placeholder="Por ejemplo: 5" inputmode="numeric">
 
         <button type="submit" id="submit-btn">Enviar al profe</button>
 
@@ -159,7 +153,7 @@ function enviar(e) {
             btn.disabled = false;
         })
         .withFailureHandler(function (err) {
-            msg.innerHTML = '<div class="mensaje error">Error: ' + (err && err.message ? err.message : 'No se pudo subir. Probas otra vez en un rato.') + '</div>';
+            msg.innerHTML = '<div class="mensaje error">Error: ' + (err && err.message ? err.message : 'No se pudo subir. Prob&aacute; otra vez en un rato.') + '</div>';
             btn.textContent = 'Enviar al profe';
             btn.disabled = false;
         })

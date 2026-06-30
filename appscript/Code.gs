@@ -7,8 +7,8 @@
  * - "Quien tiene acceso": Cualquiera
  *
  * El alumno NO necesita cuenta de Google ni login. Sube una foto + grado +
- * (opcional) que no entiende, y queda en la carpeta EjerciciosEduten del
- * Drive del docente. Despues el docente revisa en el tablero local.
+ * (opcional) numero de ejercicio, y queda en la carpeta EjerciciosEduten
+ * del Drive del docente. Despues el docente revisa en el tablero local.
  *
  * Ver appscript/README.md para los pasos de deploy.
  */
@@ -17,10 +17,6 @@
  *  Es la carpeta "EjerciciosEduten" del Drive de la cuenta
  *  escuela1077buenosaires@gmail.com. */
 const DRIVE_FOLDER_ID = '1S6DB8GD2A5gAzYNyKInuCOr-kBXHxXod';
-
-/** Codigo de clase: freno minimo contra subidas anonimas de spam.
- *  Cambialo cuando arme. Decile a los alumnos cual es. */
-const CLASS_CODE = '1077';
 
 /** Tamano maximo aceptado del archivo subido (10 MB). */
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
@@ -43,15 +39,6 @@ function doGet() {
  */
 function uploadFile(formObject) {
   try {
-    // Validacion del codigo de clase
-    var codigo = (formObject.codigo || '').trim();
-    if (codigo !== CLASS_CODE) {
-      return {
-        ok: false,
-        mensaje: 'Codigo de la clase incorrecto. Pedile a tu profe el codigo.'
-      };
-    }
-
     // Validaciones basicas
     if (!formObject.foto) {
       return { ok: false, mensaje: 'Hace falta que subas una foto del ejercicio.' };
@@ -80,26 +67,38 @@ function uploadFile(formObject) {
       };
     }
 
-    // Nombre con timestamp + grado
+    // Numero de ejercicio (opcional)
+    var numeroRaw = (formObject.numero || '').toString().trim();
+    var numero = null;
+    if (numeroRaw !== '') {
+      var n = parseInt(numeroRaw, 10);
+      if (!isNaN(n) && n > 0) {
+        numero = n;
+      }
+    }
+
+    // Nombre con timestamp + grado + (opcional) numero
     var tz = 'America/Argentina/Buenos_Aires';
     var timestamp = Utilities.formatDate(new Date(), tz, 'yyyyMMdd-HHmmss');
     var ext = mime.split('/')[1].toLowerCase();
-    // Normalizar extensiones raras
     if (ext === 'jpeg') ext = 'jpg';
-    var fileName = 'ejercicio-' + timestamp + '-g' + formObject.grado + '.' + ext;
+    var fileName = 'ejercicio-' + timestamp + '-g' + formObject.grado;
+    if (numero !== null) {
+      fileName += '-n' + numero;
+    }
+    fileName += '.' + ext;
 
     // Sube a Drive
     var folder = DriveApp.getFolderById(DRIVE_FOLDER_ID);
     var file = folder.createFile(blob).setName(fileName);
 
-    // Metadata en la descripcion (el docente la puede ver en el tablero)
-    var consigna = (formObject.consigna || '').trim();
+    // Metadata en la descripcion (la lee Claude al armar el tablero)
     var lines = [
       'Grado: ' + formObject.grado,
       'Subido: ' + new Date().toISOString()
     ];
-    if (consigna) {
-      lines.push('Consigna del alumno: ' + consigna);
+    if (numero !== null) {
+      lines.push('Numero de ejercicio: ' + numero);
     }
     file.setDescription(lines.join('\n'));
 
