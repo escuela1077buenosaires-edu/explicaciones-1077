@@ -1,5 +1,14 @@
 [
   {
+    "id": "descomposicion-decenas-001",
+    "titulo": "Descomponer un numero en decenas y unidades",
+    "tema": "Matematica",
+    "tipo": "Descomposicion en decenas y unidades",
+    "grado": 2,
+    "url": "ej/descomposicion-decenas-001.html",
+    "fecha": "2026-06-30"
+  },
+  {
     "id": "suma-llevando-001",
     "titulo": "Suma con tres cifras llevando una",
     "tema": "Matematica",
