@@ -4,8 +4,9 @@ local/*
 !local/README.md
 
 # Carpeta de entrada (imágenes crudas de ejercicios subidos por alumnos).
-# JAMAS deben llegar al repo publico.
-entrada/
+# JAMAS deben llegar al repo publico. Solo se versiona el README marcador.
+entrada/*
+!entrada/README.md
 
 # Sistema operativo
 Thumbs.db
@@ -19,3 +20,10 @@ Desktop.ini
 
 # Configuración de MCPs (puede contener tokens) — nunca commitear.
 .mcp.json
+
+# Archivos efímeros del tablero — snapshots de Drive y cola de procesado.
+# Estos pueden contener referencias a imágenes con datos del alumno.
+tablero/datos.json
+tablero/cola.json
+tablero/estado.json
+tablero/thumbs/

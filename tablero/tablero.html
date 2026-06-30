@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tablero - explicaciones-1077</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f6f4ee;
+            margin: 0;
+            padding: 0;
+            color: #222;
+        }
+        .barra {
+            background: #1c5aa3;
+            color: #fff;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .barra h1 { margin: 0; font-size: 22px; }
+        .barra .meta { font-size: 14px; opacity: 0.9; }
+        .contenedor { max-width: 1000px; margin: 0 auto; padding: 24px; }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .toolbar .info { color: #555; font-size: 14px; }
+        button {
+            font: inherit;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+            padding: 10px 18px;
+        }
+        button.secundario {
+            background: #fff;
+            color: #1c5aa3;
+            border: 2px solid #1c5aa3;
+        }
+        button.principal {
+            background: #1c5aa3;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 14px 28px;
+        }
+        button.principal:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+
+        .lista {
+            display: grid;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+        .item {
+            display: flex;
+            gap: 16px;
+            padding: 14px;
+            background: #fff;
+            border: 2px solid #e3dcc7;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.15s, background 0.15s;
+            position: relative;
+        }
+        .item:hover { border-color: #b9c8e0; }
+        .item.seleccionado {
+            background: #e3f2fd;
+            border-color: #1c5aa3;
+        }
+        .item.procesando {
+            border-color: #e6a700;
+            background: #fff8e1;
+            cursor: default;
+        }
+        .item.procesado {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+        .item.error {
+            border-color: #ef5350;
+            background: #ffebee;
+        }
+        .item input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            margin-top: 4px;
+            cursor: pointer;
+            accent-color: #1c5aa3;
+        }
+        .item input[type="checkbox"]:disabled { cursor: not-allowed; }
+        .item .thumb {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #eee;
+            border: 1px solid #ccc;
+            flex-shrink: 0;
+        }
+        .item .meta { flex: 1; min-width: 0; }
+        .item .meta h3 {
+            margin: 0 0 8px 0;
+            font-size: 17px;
+            color: #143f73;
+            word-break: break-word;
+        }
+        .item .meta .dato {
+            font-size: 14px;
+            color: #555;
+            margin: 3px 0;
+        }
+        .item .meta .dato strong { color: #222; }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 6px;
+        }
+        .badge.pendiente { background: #e0e0e0; color: #555; }
+        .badge.procesando {
+            background: #ffc107;
+            color: #5a4400;
+        }
+        .badge.procesando::after {
+            content: " ...";
+            animation: dots 1.4s steps(4, end) infinite;
+        }
+        @keyframes dots {
+            0% { content: ""; }
+            25% { content: " ."; }
+            50% { content: " .."; }
+            75% { content: " ..."; }
+        }
+        .badge.procesado { background: #4caf50; color: #fff; }
+        .badge.error { background: #ef5350; color: #fff; }
+
+        .resultado-link {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 6px 12px;
+            background: #fff;
+            border: 2px solid #4caf50;
+            border-radius: 6px;
+            color: #2e6b32;
+            font-weight: bold;
+            font-size: 14px;
+            text-decoration: none;
+        }
+        .resultado-link:hover { background: #e8f5e9; }
+
+        .acciones {
+            position: sticky;
+            bottom: 0;
+            background: #f6f4ee;
+            padding: 16px 0;
+            border-top: 2px solid #e3dcc7;
+            text-align: center;
+        }
+        .estado-msg {
+            margin-top: 14px;
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 15px;
+            display: none;
+        }
+        .estado-msg.ok {
+            background: #e8f5e9;
+            color: #2e6b32;
+            border: 1px solid #4caf50;
+            display: block;
+        }
+        .estado-msg.info {
+            background: #e3f2fd;
+            color: #143f73;
+            border: 1px solid #1c5aa3;
+            display: block;
+        }
+        .estado-msg.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+            display: block;
+        }
+        .vacio {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+            background: #fff;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="barra">
+        <h1>Tablero - Ejercicios pendientes</h1>
+        <div class="meta">Escuela 1077</div>
+    </header>
+
+    <main class="contenedor">
+
+        <div class="toolbar">
+            <span id="info" class="info">Cargando...</span>
+            <button class="secundario" onclick="recargarTodo()">Actualizar lista</button>
+        </div>
+
+        <div id="lista" class="lista"></div>
+
+        <div class="acciones">
+            <button id="resolver" class="principal" onclick="resolverSeleccionados()" disabled>
+                Resolver Ejercicio
+            </button>
+            <div id="estado-msg" class="estado-msg"></div>
+        </div>
+
+    </main>
+
+<script>
+"use strict";
+
+var datos = [];          // Lista de items desde datos.json
+var estado = { items: {} };  // Map id -> {estado, url?, mensaje?} desde estado.json
+var pollInterval = null;
+
+function escapar(s) {
+    return String(s == null ? "" : s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+}
+
+function estadoDeItem(id) {
+    var e = estado.items[id];
+    return e ? e.estado : "pendiente";
+}
+
+function hayProcesando() {
+    for (var id in estado.items) {
+        if (estado.items[id].estado === "procesando") return true;
+    }
+    return false;
+}
+
+function fetchJson(url) {
+    return fetch(url + "?t=" + Date.now()).then(function (res) {
+        if (res.status === 404) return null; // estado.json puede no existir aun
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+    });
+}
+
+function cargarDatos() {
+    return fetchJson("/datos.json").then(function (json) {
+        if (json === null) throw new Error("No hay datos.json todavia. Pedile a Claude Code: 'actualizame el tablero'.");
+        datos = json.items || [];
+        var fecha = json.actualizado ? new Date(json.actualizado).toLocaleString() : "?";
+        document.getElementById("info").textContent =
+            datos.length + " ejercicio(s) en Drive. Ultima actualizacion: " + fecha;
+    });
+}
+
+function cargarEstado() {
+    return fetchJson("/estado.json").then(function (json) {
+        estado = (json && json.items) ? json : { items: {} };
+    });
+}
+
+function recargarTodo() {
+    document.getElementById("info").textContent = "Cargando...";
+    Promise.all([cargarDatos(), cargarEstado()])
+        .then(function () {
+            renderLista();
+            iniciarPollingSiHaceFalta();
+        })
+        .catch(function (e) {
+            document.getElementById("info").textContent = "";
+            document.getElementById("lista").innerHTML =
+                '<div class="vacio">' + escapar(e.message) + "</div>";
+            actualizarBotonResolver();
+        });
+}
+
+function renderLista() {
+    var lista = document.getElementById("lista");
+    if (datos.length === 0) {
+        lista.innerHTML = '<div class="vacio">No hay ejercicios en Drive.</div>';
+        actualizarBotonResolver();
+        return;
+    }
+    var html = "";
+    for (var i = 0; i < datos.length; i++) {
+        var d = datos[i];
+        var est = estadoDeItem(d.id);
+        var infoEstado = estado.items[d.id] || {};
+
+        var thumb = d.thumb
+            ? '<img class="thumb" src="' + escapar(d.thumb) + '" alt="">'
+            : '<div class="thumb"></div>';
+
+        var checkboxDisabled = (est === "procesando") ? " disabled" : "";
+
+        var badgeHtml = '<span class="badge ' + escapar(est) + '">' +
+            etiquetaEstado(est) +
+            '</span>';
+
+        var linkHtml = "";
+        if (est === "procesado" && infoEstado.url) {
+            linkHtml = '<a class="resultado-link" href="' + escapar(infoEstado.url) +
+                '" target="_blank" rel="noopener">Ver ficha publicada &rarr;</a>';
+        } else if (est === "error" && infoEstado.mensaje) {
+            linkHtml = '<div class="dato" style="color:#c62828">' + escapar(infoEstado.mensaje) + '</div>';
+        }
+
+        html += '<label class="item ' + escapar(est === "pendiente" ? "" : est) + '" data-id="' + escapar(d.id) + '">' +
+            '<input type="checkbox" data-id="' + escapar(d.id) + '" onchange="actualizarBotonResolver()"' + checkboxDisabled + '>' +
+            thumb +
+            '<div class="meta">' +
+            '<h3>' + escapar(d.titulo) + '</h3>' +
+            (d.subido_str ? '<div class="dato"><strong>Subido:</strong> ' + escapar(d.subido_str) + '</div>' : '') +
+            (d.grado ? '<div class="dato"><strong>Grado:</strong> ' + escapar(d.grado) + '</div>' : '') +
+            (d.consigna ? '<div class="dato"><strong>Consigna del alumno:</strong> ' + escapar(d.consigna) + '</div>' : '') +
+            badgeHtml +
+            linkHtml +
+            '</div>' +
+            '</label>';
+    }
+    lista.innerHTML = html;
+    actualizarBotonResolver();
+}
+
+function etiquetaEstado(est) {
+    if (est === "procesando") return "Procesando";
+    if (est === "procesado") return "Publicado";
+    if (est === "error") return "Error";
+    return "Pendiente";
+}
+
+function obtenerSeleccionados() {
+    var checks = document.querySelectorAll("#lista input[type='checkbox']:checked");
+    var ids = [];
+    for (var i = 0; i < checks.length; i++) {
+        ids.push(checks[i].getAttribute("data-id"));
+    }
+    return ids;
+}
+
+function actualizarBotonResolver() {
+    var seleccionados = obtenerSeleccionados();
+    var btn = document.getElementById("resolver");
+    var procesando = hayProcesando();
+    btn.disabled = seleccionados.length === 0 || procesando;
+
+    if (procesando) {
+        btn.textContent = "Procesando...";
+    } else if (seleccionados.length === 0) {
+        btn.textContent = "Resolver Ejercicio";
+    } else {
+        btn.textContent = "Resolver " + seleccionados.length + " Ejercicio(s)";
+    }
+
+    // Marcar visualmente seleccionados
+    var items = document.querySelectorAll(".item");
+    for (var i = 0; i < items.length; i++) {
+        var check = items[i].querySelector("input[type='checkbox']");
+        if (check && check.checked) {
+            items[i].classList.add("seleccionado");
+        } else {
+            items[i].classList.remove("seleccionado");
+        }
+    }
+}
+
+function mostrarMsg(clase, texto) {
+    var msg = document.getElementById("estado-msg");
+    msg.className = "estado-msg " + clase;
+    msg.innerHTML = texto;
+}
+
+function resolverSeleccionados() {
+    var ids = obtenerSeleccionados();
+    if (ids.length === 0) return;
+
+    var btn = document.getElementById("resolver");
+    btn.disabled = true;
+    mostrarMsg("info", "Enviando seleccion...");
+
+    fetch("/api/resolver", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: ids })
+    })
+        .then(function (res) { return res.json().then(function (j) { return { ok: res.ok, body: j }; }); })
+        .then(function (r) {
+            if (!r.ok || !r.body.ok) {
+                throw new Error(r.body.mensaje || "Error desconocido");
+            }
+            mostrarMsg("info",
+                "<strong>" + escapar(r.body.mensaje) + "</strong><br>" +
+                "Mira el estado de cada ejercicio mas arriba. La pagina se actualiza sola."
+            );
+            // Limpia checkboxes
+            var checks = document.querySelectorAll("#lista input[type='checkbox']");
+            for (var i = 0; i < checks.length; i++) checks[i].checked = false;
+            // Carga estado nuevo y empezamos a pollear
+            cargarEstado().then(function () {
+                renderLista();
+                iniciarPollingSiHaceFalta();
+            });
+        })
+        .catch(function (e) {
+            mostrarMsg("error", "Error: " + escapar(e.message));
+            btn.disabled = false;
+        });
+}
+
+function iniciarPollingSiHaceFalta() {
+    if (pollInterval) return; // ya esta corriendo
+    if (!hayProcesando()) return; // no hace falta
+    pollInterval = setInterval(function () {
+        cargarEstado()
+            .then(function () {
+                renderLista();
+                if (!hayProcesando()) {
+                    clearInterval(pollInterval);
+                    pollInterval = null;
+                    mostrarMsg("ok", "Procesado terminado. Mira los resultados arriba.");
+                }
+            })
+            .catch(function () {
+                // estado.json puede tener errores transitorios, seguimos polleando
+            });
+    }, 3000);
+}
+
+// Carga inicial
+recargarTodo();
+</script>
+
+</body>
+</html>
