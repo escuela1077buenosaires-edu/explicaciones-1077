@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolucion Ejercicios - Escuela 1077 "Provincia de Buenos Aires"</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f6f4ee;
+            color: #222;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .barra {
+            background: #1c5aa3;
+            color: #fff;
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .barra h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .barra .meta {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .contenedor {
+            width: 100%;
+            max-width: 720px;
+            padding: 30px;
+            background: #fff;
+            border: 2px solid #e3dcc7;
+            border-radius: 12px;
+        }
+
+        .contenedor h2 {
+            margin: 0 0 6px 0;
+            color: #143f73;
+            font-size: 22px;
+        }
+
+        .contenedor .sub {
+            margin: 0 0 24px 0;
+            color: #666;
+            font-size: 15px;
+        }
+
+        .tarjetas {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .tarjeta {
+            flex: 1;
+            min-width: 220px;
+            padding: 22px;
+            background: #fdfbf5;
+            border: 2px solid #d9d0b5;
+            border-radius: 10px;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            transition: border-color 0.15s, background 0.15s, transform 0.1s;
+            cursor: pointer;
+        }
+
+        .tarjeta:hover {
+            border-color: #1c5aa3;
+            background: #e3f2fd;
+            transform: translateY(-1px);
+        }
+
+        .tarjeta:active {
+            transform: translateY(0);
+        }
+
+        .tarjeta h3 {
+            margin: 0 0 8px 0;
+            color: #143f73;
+            font-size: 18px;
+        }
+
+        .tarjeta p {
+            margin: 0;
+            font-size: 14px;
+            color: #555;
+            line-height: 1.4;
+        }
+
+        .pie {
+            padding: 12px 24px;
+            color: #888;
+            font-size: 12px;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .contenedor {
+                padding: 20px;
+            }
+
+            .tarjetas {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="barra">
+        <h1>Resolucion Ejercicios</h1>
+        <div class="meta">Escuela 1-077 "Provincia de Buenos Aires"</div>
+    </header>
+
+    <main>
+        <div class="contenedor">
+            <h2>Tablero Funcional Administrador</h2>
+            <p class="sub">Apertura en Pestaña Adicional.</p>
+
+            <div class="tarjetas">
+
+                <a class="tarjeta"
+                    href="https://script.google.com/macros/s/AKfycbwnVv2ybDBYO0vGE6tLkeL885kR2RAI7g-QY6_KF3eixpwgbWOK-Jg4iiHaT32Oyg5j/exec"
+                    target="_blank" rel="noopener">
+                    <h3>Subir Ejercicio</h3>
+                    <p>Formulario para subir la imagen del ejercicio capturada</p>
+                </a>
+
+                <a class="tarjeta" href="/tablero.html" target="_blank" rel="noopener">
+                    <h3>Ver Tablero</h3>
+                    <p>Ver los ejercicios pendientes y publicados.</p>
+                </a>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="pie">
+        Server local en 127.0.0.1:8765
+    </footer>
+
+</body>
+
+</html>

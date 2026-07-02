@@ -26,4 +26,6 @@ Desktop.ini
 tablero/datos.json
 tablero/cola.json
 tablero/estado.json
+tablero/refresh.json
+tablero/eliminados.json
 tablero/thumbs/

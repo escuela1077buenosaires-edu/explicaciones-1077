@@ -131,7 +131,6 @@
             border-radius: 12px;
             font-size: 13px;
             font-weight: bold;
-            margin-top: 6px;
         }
         .badge.pendiente { background: #e0e0e0; color: #555; }
         .badge.procesando {
@@ -150,6 +149,28 @@
         }
         .badge.procesado { background: #4caf50; color: #fff; }
         .badge.error { background: #ef5350; color: #fff; }
+
+        /* Fila del extremo derecho: badge + boton eliminar a la misma altura */
+        .estado-fila {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        .btn-eliminar {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #fff;
+            color: #c62828;
+            border: 1px solid #c62828;
+            cursor: pointer;
+            line-height: 1.2;
+        }
+        .btn-eliminar:hover:not(:disabled) { background: #ffebee; }
+        .btn-eliminar:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .resultado-link {
             display: inline-block;
@@ -219,7 +240,7 @@
 
         <div class="toolbar">
             <span id="info" class="info">Cargando...</span>
-            <button class="secundario" onclick="recargarTodo()">Actualizar lista</button>
+            <button id="btn-refresh" class="secundario" onclick="actualizarDesdeDrive()">Actualizar desde Drive</button>
         </div>
 
         <div id="lista" class="lista"></div>
@@ -236,8 +257,8 @@
 <script>
 "use strict";
 
-var datos = [];          // Lista de items desde datos.json
-var estado = { items: {} };  // Map id -> {estado, url?, mensaje?} desde estado.json
+var datos = [];
+var estado = { items: {} };
 var pollInterval = null;
 
 function escapar(s) {
@@ -262,7 +283,7 @@ function hayProcesando() {
 
 function fetchJson(url) {
     return fetch(url + "?t=" + Date.now()).then(function (res) {
-        if (res.status === 404) return null; // estado.json puede no existir aun
+        if (res.status === 404) return null;
         if (!res.ok) throw new Error("HTTP " + res.status);
         return res.json();
     });
@@ -270,7 +291,7 @@ function fetchJson(url) {
 
 function cargarDatos() {
     return fetchJson("/datos.json").then(function (json) {
-        if (json === null) throw new Error("No hay datos.json todavia. Pedile a Claude Code: 'actualizame el tablero'.");
+        if (json === null) throw new Error("No hay datos.json todavia. Presiona 'Actualizar desde Drive'.");
         datos = json.items || [];
         var fecha = json.actualizado ? new Date(json.actualizado).toLocaleString() : "?";
         document.getElementById("info").textContent =
@@ -299,6 +320,13 @@ function recargarTodo() {
         });
 }
 
+function etiquetaEstado(est) {
+    if (est === "procesando") return "Procesando";
+    if (est === "procesado") return "Publicado";
+    if (est === "error") return "Error";
+    return "Pendiente";
+}
+
 function renderLista() {
     var lista = document.getElementById("lista");
     if (datos.length === 0) {
@@ -317,10 +345,15 @@ function renderLista() {
             : '<div class="thumb"></div>';
 
         var checkboxDisabled = (est === "procesando") ? " disabled" : "";
+        var deshabilitarEliminar = (est === "procesando") ? " disabled" : "";
 
-        var badgeHtml = '<span class="badge ' + escapar(est) + '">' +
+        var badgeHtml = '<div class="estado-fila">' +
+            '<span class="badge ' + escapar(est) + '">' +
             etiquetaEstado(est) +
-            '</span>';
+            '</span>' +
+            '<button type="button" class="btn-eliminar" onclick="event.preventDefault(); eliminarItem(\'' +
+            escapar(d.id) + '\')"' + deshabilitarEliminar + '>Eliminar</button>' +
+            '</div>';
 
         var linkHtml = "";
         if (est === "procesado" && infoEstado.url) {
@@ -337,6 +370,7 @@ function renderLista() {
             '<h3>' + escapar(d.titulo) + '</h3>' +
             (d.subido_str ? '<div class="dato"><strong>Subido:</strong> ' + escapar(d.subido_str) + '</div>' : '') +
             (d.grado ? '<div class="dato"><strong>Grado:</strong> ' + escapar(d.grado) + '</div>' : '') +
+            (d.numero_ejercicio ? '<div class="dato"><strong>Ejercicio N&deg;:</strong> ' + escapar(d.numero_ejercicio) + '</div>' : '') +
             (d.consigna ? '<div class="dato"><strong>Consigna del alumno:</strong> ' + escapar(d.consigna) + '</div>' : '') +
             badgeHtml +
             linkHtml +
@@ -345,13 +379,6 @@ function renderLista() {
     }
     lista.innerHTML = html;
     actualizarBotonResolver();
-}
-
-function etiquetaEstado(est) {
-    if (est === "procesando") return "Procesando";
-    if (est === "procesado") return "Publicado";
-    if (est === "error") return "Error";
-    return "Pendiente";
 }
 
 function obtenerSeleccionados() {
@@ -377,7 +404,6 @@ function actualizarBotonResolver() {
         btn.textContent = "Resolver " + seleccionados.length + " Ejercicio(s)";
     }
 
-    // Marcar visualmente seleccionados
     var items = document.querySelectorAll(".item");
     for (var i = 0; i < items.length; i++) {
         var check = items[i].querySelector("input[type='checkbox']");
@@ -410,17 +436,13 @@ function resolverSeleccionados() {
     })
         .then(function (res) { return res.json().then(function (j) { return { ok: res.ok, body: j }; }); })
         .then(function (r) {
-            if (!r.ok || !r.body.ok) {
-                throw new Error(r.body.mensaje || "Error desconocido");
-            }
+            if (!r.ok || !r.body.ok) throw new Error(r.body.mensaje || "Error");
             mostrarMsg("info",
                 "<strong>" + escapar(r.body.mensaje) + "</strong><br>" +
                 "Mira el estado de cada ejercicio mas arriba. La pagina se actualiza sola."
             );
-            // Limpia checkboxes
             var checks = document.querySelectorAll("#lista input[type='checkbox']");
             for (var i = 0; i < checks.length; i++) checks[i].checked = false;
-            // Carga estado nuevo y empezamos a pollear
             cargarEstado().then(function () {
                 renderLista();
                 iniciarPollingSiHaceFalta();
@@ -433,8 +455,8 @@ function resolverSeleccionados() {
 }
 
 function iniciarPollingSiHaceFalta() {
-    if (pollInterval) return; // ya esta corriendo
-    if (!hayProcesando()) return; // no hace falta
+    if (pollInterval) return;
+    if (!hayProcesando()) return;
     pollInterval = setInterval(function () {
         cargarEstado()
             .then(function () {
@@ -445,10 +467,95 @@ function iniciarPollingSiHaceFalta() {
                     mostrarMsg("ok", "Procesado terminado. Mira los resultados arriba.");
                 }
             })
-            .catch(function () {
-                // estado.json puede tener errores transitorios, seguimos polleando
-            });
+            .catch(function () {});
     }, 3000);
+}
+
+// ============================================================
+// Actualizar desde Drive: dispara el fetch y espera cambio de
+// timestamp en datos.json (hasta 60 seg).
+// ============================================================
+function actualizarDesdeDrive() {
+    var btn = document.getElementById("btn-refresh");
+    var info = document.getElementById("info");
+
+    var timestampAnterior = null;
+    fetch("/datos.json?t=" + Date.now())
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { if (j) timestampAnterior = j.actualizado || null; })
+        .then(function () {
+            btn.disabled = true;
+            btn.textContent = "Buscando en Drive...";
+            info.textContent = "Pidiendo a Claude que busque ejercicios nuevos...";
+            return fetch("/api/refresh", { method: "POST" });
+        })
+        .then(function (res) {
+            if (!res.ok) throw new Error("El server no respondio OK");
+            return res.json();
+        })
+        .then(function (j) {
+            if (!j.ok) throw new Error(j.mensaje || "Error");
+            mostrarMsg("info",
+                "<strong>" + escapar(j.mensaje) + "</strong><br>" +
+                "Cuando termine, la lista se actualiza sola."
+            );
+            var intentos = 0;
+            var maxIntentos = 30;
+            var refreshInterval = setInterval(function () {
+                intentos++;
+                if (intentos > maxIntentos) {
+                    clearInterval(refreshInterval);
+                    btn.disabled = false;
+                    btn.textContent = "Actualizar desde Drive";
+                    mostrarMsg("error", "No hubo respuesta en 60 segundos. Probable monitor inactivo.");
+                    return;
+                }
+                fetch("/datos.json?t=" + Date.now())
+                    .then(function (r) { return r.ok ? r.json() : null; })
+                    .then(function (j) {
+                        if (!j || !j.actualizado) return;
+                        if (j.actualizado === timestampAnterior) return;
+                        clearInterval(refreshInterval);
+                        btn.disabled = false;
+                        btn.textContent = "Actualizar desde Drive";
+                        recargarTodo();
+                        mostrarMsg("ok", "Lista actualizada desde Drive.");
+                    })
+                    .catch(function () {});
+            }, 2000);
+        })
+        .catch(function (e) {
+            btn.disabled = false;
+            btn.textContent = "Actualizar desde Drive";
+            mostrarMsg("error", "Error: " + escapar(e.message));
+        });
+}
+
+// ============================================================
+// Eliminar item: pide confirmacion y borra copia local.
+// ============================================================
+function eliminarItem(id) {
+    if (!confirm("Eliminar este ejercicio de mi lista local? El archivo original en Drive se conserva.")) {
+        return;
+    }
+    var btns = document.querySelectorAll(".btn-eliminar");
+    for (var i = 0; i < btns.length; i++) btns[i].disabled = true;
+
+    fetch("/api/eliminar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: id })
+    })
+        .then(function (res) { return res.json().then(function (j) { return { ok: res.ok, body: j }; }); })
+        .then(function (r) {
+            if (!r.ok || !r.body.ok) throw new Error(r.body.mensaje || "Error");
+            recargarTodo();
+            mostrarMsg("ok", escapar(r.body.mensaje || "Eliminado."));
+        })
+        .catch(function (e) {
+            mostrarMsg("error", "Error al eliminar: " + escapar(e.message));
+            for (var i = 0; i < btns.length; i++) btns[i].disabled = false;
+        });
 }
 
 // Carga inicial
