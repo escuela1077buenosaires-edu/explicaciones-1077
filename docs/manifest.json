@@ -1,5 +1,14 @@
 [
   {
+    "id": "multiplicacion-problema-001",
+    "titulo": "Multiplicar para saber cuanto en varios dias",
+    "tema": "Matematica",
+    "tipo": "Multiplicacion (problema con datos)",
+    "grado": 4,
+    "url": "ej/multiplicacion-problema-001.html",
+    "fecha": "2026-07-01"
+  },
+  {
     "id": "descomposicion-decenas-001",
     "titulo": "Descomponer un numero en decenas y unidades",
     "tema": "Matematica",
